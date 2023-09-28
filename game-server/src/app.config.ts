@@ -5,14 +5,14 @@ import { playground } from "@colyseus/playground";
 /**
  * Import your Room files
  */
-import { MyRoom } from "./rooms/MyRoom";
+import { CardcastersRoom } from "./rooms/CardcastersRoom";
 
 export default config({
   initializeGameServer: (gameServer) => {
     /**
      * Define your room handlers:
      */
-    gameServer.define("cardcasters", MyRoom).filterBy(["roomCode"]);
+    gameServer.define("cardcasters", CardcastersRoom).filterBy(["roomCode"]);
   },
 
   initializeExpress: (app) => {
