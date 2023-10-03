@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Card {
+  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  text     String
+  isAnswer Boolean
+  deckId   String  @db.Uuid
+  Deck     Deck    @relation(fields: [deckId], references: [id])
+}
+
+model Deck {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  name      String
+  authorId  String
+  Card      Card[]
+  User      User     @relation(fields: [authorId], references: [id])
+}
+
+model Key {
+  hashed_password String?
+  user_id         String
+  id              String  @id @unique
+  User            User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model Session {
+  user_id        String
+  active_expires BigInt
+  idle_expires   BigInt
+  id             String @id @unique
+  User           User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model User {
+  id         String    @id @unique
+  email      String    @unique
+  username   String    @unique
+  avatar_url String    @default("https://i1.sndcdn.com/artworks-9FZMn17FAwx0RbQc-ZzMwVw-t500x500.jpg")
+  Deck       Deck[]
+  Key        Key[]
+  Session    Session[]
+}
