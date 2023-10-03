@@ -6,6 +6,9 @@ import { playground } from "@colyseus/playground";
  * Import your Room files
  */
 import { CardcastersRoom } from "./rooms/CardcastersRoom";
+import { PrismaClient } from "@prisma/client";
+
+export const prisma = new PrismaClient();
 
 export default config({
   initializeGameServer: (gameServer) => {

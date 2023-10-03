@@ -1,6 +1,7 @@
 import { Room, Client, ClientArray } from "@colyseus/core";
 import { Player, RoomState } from "./schema/RoomState";
 import { IncomingMessage } from "http";
+import { prisma } from "../app.config";
 
 export class CardcastersRoom extends Room<RoomState> {
   maxClients = 10;
@@ -8,7 +9,7 @@ export class CardcastersRoom extends Room<RoomState> {
   onCreate(options: any) {
     this.setState(new RoomState());
 
-    this.onMessage("introduce", (client, data) => {
+    this.onMessage("addDeck", async (client, data) => {
       // let player = new Player(data.username, client.sessionId);
       // this.state.players.set(data.id, player);
       // console.log(
@@ -16,6 +17,17 @@ export class CardcastersRoom extends Room<RoomState> {
       //   "introduced as:",
       //   `${data.username}[${data.id}]`
       // );
+
+      const deck = await prisma.deck.findUnique({
+        where: { id: data.deckId },
+        include: { Card: true },
+      });
+      if (!deck) {
+        console.error(`Deck with id:${data.deckId} not found!`);
+        return;
+      }
+
+      console.log("Deck found!", deck);
     });
   }
 
