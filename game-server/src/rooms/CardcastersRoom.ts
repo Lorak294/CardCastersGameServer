@@ -1,5 +1,5 @@
 import { Room, Client, ClientArray } from "@colyseus/core";
-import { Player, RoomState } from "./schema/RoomState";
+import { Card, Player, RoomState } from "./schema/RoomState";
 import { IncomingMessage } from "http";
 import { prisma } from "../app.config";
 
@@ -18,16 +18,24 @@ export class CardcastersRoom extends Room<RoomState> {
       //   `${data.username}[${data.id}]`
       // );
 
-      const deck = await prisma.deck.findUnique({
-        where: { id: data.deckId },
-        include: { Card: true },
-      });
-      if (!deck) {
-        console.error(`Deck with id:${data.deckId} not found!`);
+      try {
+        // get deck from the db
+        const deck = await prisma.deck.findFirstOrThrow({
+          where: { id: data.deckId },
+          include: { Card: true },
+        });
+        console.log("Deck found!", deck);
+        // add deck to room state
+        deck.Card.forEach((card) => {
+          let newCard = new Card(card.id, card.text, card.isAnswer);
+          if (newCard.isAnswer) this.state.answersDeck.push(newCard);
+          else this.state.questionsDeck.push(newCard);
+        });
+        console.log("Cards added!");
+      } catch (err) {
+        console.error(`Error adding deck for id:${data.deckId}`);
         return;
       }
-
-      console.log("Deck found!", deck);
     });
   }
 
