@@ -1,7 +1,9 @@
-import { Room, Client, ClientArray } from "@colyseus/core";
+import { Room, Client } from "@colyseus/core";
 import { Card, Player, RoomState } from "./schema/RoomState";
 import { IncomingMessage } from "http";
-import { prisma } from "../app.config";
+import { db } from "..";
+import { auth } from "../auth/lucia";
+import { LuciaError } from "lucia";
 
 export class CardcastersRoom extends Room<RoomState> {
   maxClients = 10;
@@ -20,7 +22,7 @@ export class CardcastersRoom extends Room<RoomState> {
 
       try {
         // get deck from the db
-        const deck = await prisma.deck.findFirstOrThrow({
+        const deck = await db.deck.findFirstOrThrow({
           where: { id: data.deckId },
           include: { Card: true },
         });
@@ -33,15 +35,33 @@ export class CardcastersRoom extends Room<RoomState> {
         });
         console.log("Cards added!");
       } catch (err) {
-        console.error(`Error adding deck for id:${data.deckId}`);
+        console.error(`Error adding deck for id:${data.deckId}`, err);
         return;
       }
     });
   }
 
-  onAuth(client: Client, options: any, request?: IncomingMessage) {
+  async onAuth(client: Client, options: any, request?: IncomingMessage) {
     //console.log("auth cookie", request.headers.cookie);
-    return true;
+
+    try {
+      const session = await auth.validateSession(request.headers.cookie);
+      if (session.state === "active") {
+        // session valid
+        return true;
+      }
+      // idle session
+      // should be reset
+      return false;
+    } catch (err) {
+      if (
+        err instanceof LuciaError &&
+        err.message === `AUTH_INVALID_SESSION_ID`
+      ) {
+        // invalid session
+      }
+      // database errors
+    }
   }
 
   onJoin(client: Client, options: any) {
