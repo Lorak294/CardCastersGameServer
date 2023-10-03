@@ -24,10 +24,8 @@ import express from "express";
 import { monitor } from "@colyseus/monitor";
 import { playground } from "@colyseus/playground";
 import { CardcastersRoom } from "./rooms/CardcastersRoom";
-import { PrismaClient } from "@prisma/client/edge";
 
 require("dotenv").config();
-export const db = new PrismaClient();
 
 const port = Number(process.env.PORT) || 3000;
 

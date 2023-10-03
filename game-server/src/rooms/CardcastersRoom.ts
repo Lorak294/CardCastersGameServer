@@ -1,7 +1,7 @@
 import { Room, Client } from "@colyseus/core";
 import { Card, Player, RoomState } from "./schema/RoomState";
 import { IncomingMessage } from "http";
-import { db } from "..";
+import { db } from "../database";
 import { auth } from "../auth/lucia";
 import { LuciaError } from "lucia";
 

@@ -1,7 +1,7 @@
 import { prisma } from "@lucia-auth/adapter-prisma";
 import { lucia } from "lucia";
 import { express } from "lucia/middleware";
-import { db } from "..";
+import { db } from "../database";
 
 export const auth = lucia({
   env: process.env.NODE_ENV === "developement" ? "DEV" : "PROD",
