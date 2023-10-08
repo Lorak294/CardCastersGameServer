@@ -12,14 +12,6 @@ export class CardcastersRoom extends Room<RoomState> {
     this.setState(new RoomState());
 
     this.onMessage("addDeck", async (client, data) => {
-      // let player = new Player(data.username, client.sessionId);
-      // this.state.players.set(data.id, player);
-      // console.log(
-      //   client.sessionId,
-      //   "introduced as:",
-      //   `${data.username}[${data.id}]`
-      // );
-
       try {
         // get deck from the db
         const deck = await db.deck.findFirstOrThrow({
@@ -59,8 +51,10 @@ export class CardcastersRoom extends Room<RoomState> {
         err.message === `AUTH_INVALID_SESSION_ID`
       ) {
         // invalid session
+        console.log("invalid session!");
       }
       // database errors
+      console.log("db error!");
     }
   }
 
